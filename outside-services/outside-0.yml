@@ -6,7 +6,7 @@ metadata:
 spec:
   selector:
     app: kafka
-    kafka-broker-id: "0"
+    statefulset.kubernetes.io/pod-name: kafka-0
   ports:
   - protocol: TCP
     targetPort: 9094

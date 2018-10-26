@@ -8,7 +8,7 @@ spec:
     matchLabels:
       app: kafka
   serviceName: "broker"
-  replicas: 3
+  replicas: 4
   updateStrategy:
     type: OnDelete
   template:
@@ -46,6 +46,8 @@ spec:
         env:
         - name: KAFKA_LOG4J_OPTS
           value: -Dlog4j.configuration=file:/etc/kafka/log4j.properties
+        - name: KAFKA_HEAP_OPTS
+          value: "-Xmx4500M -Xms4500M"
         - name: JMX_PORT
           value: "5555"
         ports:
@@ -60,8 +62,8 @@ spec:
         - /etc/kafka/server.properties
         resources:
           requests:
-            cpu: 100m
-            memory: 512Mi
+            cpu: 1500m
+            memory: 5300Mi
         readinessProbe:
           tcpSocket:
             port: 9092
@@ -71,6 +73,11 @@ spec:
           mountPath: /etc/kafka
         - name: data
           mountPath: /var/lib/kafka/data
+      tolerations:
+        - key: "dedicated"
+          operator: "Equal"
+          value: "kafka"
+          effect: "NoSchedule"
       volumes:
       - name: configmap
         configMap:
@@ -85,4 +92,4 @@ spec:
       storageClassName: kafka-broker
       resources:
         requests:
-          storage: 200Gi
+          storage: 1000Gi
