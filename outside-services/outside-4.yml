@@ -1,0 +1,15 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: outside-4
+  namespace: kafka
+spec:
+  selector:
+    app: kafka
+    statefulset.kubernetes.io/pod-name: kafka-4
+  ports:
+  - protocol: TCP
+    targetPort: 9094
+    port: 32404
+    nodePort: 32404
+  type: NodePort
