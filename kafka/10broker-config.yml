@@ -34,9 +34,13 @@ data:
       fi
 
       OUTSIDE_HOST=$(kubectl get node "$NODE_NAME" -o jsonpath='{.status.addresses[?(@.type=="InternalIP")].address}')
+      OUTSIDE_PORT=${OutsidePort}
+      #OUTSIDE_HOST=$(kubectl get node "$NODE_NAME" -o jsonpath='{.status.addresses[?(@.type=="ExternalIP")].address}')
+
       if [ $? -ne 0 ]; then
         echo "Outside (i.e. cluster-external access) host lookup command failed"
       else
+        echo "Outside host: ${OUTSIDE_HOST}"
         OUTSIDE_PORT=3240${KAFKA_BROKER_ID}
         SEDS+=("s|#init#advertised.listeners=OUTSIDE://#init#|advertised.listeners=OUTSIDE://${OUTSIDE_HOST}:${OUTSIDE_PORT}|")
         ANNOTATIONS="$ANNOTATIONS kafka-listener-outside-host=$OUTSIDE_HOST kafka-listener-outside-port=$OUTSIDE_PORT"
@@ -62,7 +66,7 @@ data:
     # The default number of log partitions per topic. More partitions allow greater
     # parallelism for consumption, but this will also result in more files across
     # the brokers.
-    num.partitions=1
+    num.partitions=16
 
     default.replication.factor=3
 
@@ -83,7 +87,7 @@ data:
 
     ############################# Socket Server Settings #############################
 
-    # The address the socket server listens on. It will get the value returned from 
+    # The address the socket server listens on. It will get the value returned from
     # java.net.InetAddress.getCanonicalHostName() if not configured.
     #   FORMAT:
     #     listeners = listener_name://host_name:port
@@ -92,7 +96,7 @@ data:
     #listeners=PLAINTEXT://:9092
     listeners=OUTSIDE://:9094,PLAINTEXT://:9092
 
-    # Hostname and port the broker will advertise to producers and consumers. If not set, 
+    # Hostname and port the broker will advertise to producers and consumers. If not set,
     # it uses the value for "listeners" if configured.  Otherwise, it will use the value
     # returned from java.net.InetAddress.getCanonicalHostName().
     #advertised.listeners=PLAINTEXT://your.host.name:9092
@@ -110,13 +114,13 @@ data:
     #num.io.threads=8
 
     # The send buffer (SO_SNDBUF) used by the socket server
-    #socket.send.buffer.bytes=102400
+    socket.send.buffer.bytes=102400
 
     # The receive buffer (SO_RCVBUF) used by the socket server
-    #socket.receive.buffer.bytes=102400
+    socket.receive.buffer.bytes=102400
 
     # The maximum size of a request that the socket server will accept (protection against OOM)
-    #socket.request.max.bytes=104857600
+    socket.request.max.bytes=104857600
 
     ############################# Internal Topic Settings  #############################
     # The replication factor for the group metadata internal topics "__consumer_offsets" and "__transaction_state"

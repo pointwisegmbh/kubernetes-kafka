@@ -55,6 +55,7 @@ spec:
           containerPort: 9092
         - name: outside
           containerPort: 9094
+          hostPort: 9094
         - name: jmx
           containerPort: 5555
         command:
